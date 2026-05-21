@@ -101,7 +101,7 @@ function SuccessContent() {
         {/* Logo */}
         <div className="mb-4">
           <Image 
-            src="/logo.jpg" 
+            src="/logo.png" 
             alt="VidaPlena Logo" 
             width={60} 
             height={60} 
