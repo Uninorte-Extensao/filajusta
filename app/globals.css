@@ -8,13 +8,13 @@
   --bg-primary: #F5F7FA;
   --bg-secondary: #FFFFFF;
   --bg-card: #FFFFFF;
-  --bg-green-card: #00E96A;
+  --bg-green-card: #45AC8B;
   --text-primary: #0A1628;
   --text-secondary: #4A5568;
-  --text-on-green: #000000;
-  --accent: #00E96A;
-  --accent-hover: #00C957;
-  --accent-dark: #008C40;
+  --text-on-green: #FFFFFF;
+  --accent: #45AC8B;
+  --accent-hover: #3d9a7d;
+  --accent-dark: #358f72;
   --input-bg: #FFFFFF;
   --input-border: #E2E8F0;
   --border-subtle: #E2E8F0;
@@ -27,24 +27,24 @@
   --card-foreground: #0A1628;
   --popover: #FFFFFF;
   --popover-foreground: #0A1628;
-  --primary: #00E96A;
-  --primary-foreground: #000000;
+  --primary: #45AC8B;
+  --primary-foreground: #FFFFFF;
   --secondary: #F5F7FA;
   --secondary-foreground: #0A1628;
   --muted: #F1F5F9;
   --muted-foreground: #4A5568;
-  --accent: #00E96A;
-  --accent-foreground: #000000;
+  --accent: #45AC8B;
+  --accent-foreground: #FFFFFF;
   --destructive: #E94040;
   --destructive-foreground: #FFFFFF;
   --border: #E2E8F0;
   --input: #FFFFFF;
   --input-foreground: #0A1628;
-  --ring: #00E96A;
+  --ring: #45AC8B;
   
   /* Status colors */
   --status-aguardando: #F5A623;
-  --status-confirmado: #00E96A;
+  --status-confirmado: #45AC8B;
   --status-cancelado: #E94040;
   --status-atendido: #4A90D9;
   --status-falta: #888888;
@@ -61,13 +61,13 @@
   --bg-primary: #0A1628;
   --bg-secondary: #0F1F3D;
   --bg-card: #1A2F50;
-  --bg-green-card: #00E96A;
+  --bg-green-card: #45AC8B;
   --text-primary: #F5F7FA;
   --text-secondary: #A0AEC0;
-  --text-on-green: #000000;
-  --accent: #00E96A;
-  --accent-hover: #00C957;
-  --accent-dark: #00E96A;
+  --text-on-green: #FFFFFF;
+  --accent: #45AC8B;
+  --accent-hover: #3d9a7d;
+  --accent-dark: #45AC8B;
   --input-bg: #1A2F50;
   --input-border: #2D4A7A;
   --border-subtle: rgba(255,255,255,0.08);
@@ -87,6 +87,9 @@
   --border: #2D4A7A;
   --input: #1A2F50;
   --input-foreground: #F5F7FA;
+  --primary: #45AC8B;
+  --primary-foreground: #FFFFFF;
+  --ring: #45AC8B;
 }
 
 @theme inline {

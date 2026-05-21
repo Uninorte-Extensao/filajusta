@@ -158,7 +158,7 @@ export default function MedicosPage() {
             const appointmentsToday = getDoctorAppointmentsToday(doctor.id)
 
             const statusConfig = {
-              'disponivel': { label: 'Disponível', color: 'bg-[#00E96A] text-black' },
+              'disponivel': { label: 'Disponível', color: 'bg-primary text-primary-foreground' },
               'em-consulta': { label: 'Em consulta', color: 'bg-[#F5A623] text-black' },
               'ausente': { label: 'Ausente', color: 'bg-[#E94040] text-white' },
             }

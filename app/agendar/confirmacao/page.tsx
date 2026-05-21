@@ -26,15 +26,17 @@ function formatDate(dateStr: string): string {
 
 export default function ConfirmacaoPage() {
   const router = useRouter()
-  const { booking, resetBooking } = useApp()
+  const { booking } = useApp()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [confirmed, setConfirmed] = useState(false)
 
   useEffect(() => {
+    if (confirmed) return
     if (!booking.especialidade || !booking.medico || !booking.data || !booking.horario || !booking.nome) {
       router.push("/agendar/especialidade")
     }
-  }, [booking, router])
+  }, [booking, router, confirmed])
 
   if (!booking.especialidade || !booking.medico || !booking.data || !booking.horario || !booking.nome) {
     return null
@@ -67,11 +69,8 @@ export default function ConfirmacaoPage() {
         setIsLoading(false)
         return
       }
-      
-      // Reset booking state
-      resetBooking()
-      
-      // Navigate to success page with code
+
+      setConfirmed(true)
       router.push(`/sucesso?codigo=${result.codigo}`)
     } catch (err) {
       console.error("[v0] Error creating appointment:", err)

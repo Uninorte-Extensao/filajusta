@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
-import Image from "next/image"
 import { StatusBadge } from "@/components/status-badge"
 import { PriorityBadge } from "@/components/priority-badge"
 import { Button } from "@/components/ui/button"
@@ -25,7 +23,6 @@ import {
   Bell,
   UserX,
   Stethoscope,
-  Home,
   Sun,
   Moon,
   Loader2,
@@ -45,7 +42,8 @@ import {
 import { useTheme } from "@/hooks/use-theme"
 import { useAuthGuard } from "@/hooks/use-auth-guard"
 import { 
-  getAgendamentosByDate, 
+  getAgendamentosByDate,
+  getAllAgendamentos,
   updateAgendamentoStatus,
   type Agendamento 
 } from "@/lib/supabase-actions"
@@ -68,6 +66,7 @@ export default function RecepcaoPage() {
   const [selectedAppointment, setSelectedAppointment] = useState<Agendamento | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [appointments, setAppointments] = useState<Agendamento[]>([])
+  const [allAppointments, setAllAppointments] = useState<Agendamento[]>([])
   const [loadingData, setLoadingData] = useState(true)
   const [session, setSession] = useState<any>(null)
 
@@ -82,28 +81,34 @@ export default function RecepcaoPage() {
   useEffect(() => {
     if (!session) return
     loadAppointments()
+    loadAllAppointments()
   }, [selectedDate, session])
 
   const loadAppointments = async () => {
     setLoadingData(true)
     try {
       const data = await getAgendamentosByDate(selectedDate)
-      
-      // Sort: priority first (by time), then normal (by time)
       const sorted = [...data].sort((a, b) => {
         const aPriority = a.prioridade !== "normal" ? 0 : 1
         const bPriority = b.prioridade !== "normal" ? 0 : 1
-        
         if (aPriority !== bPriority) return aPriority - bPriority
         return new Date(a.data_hora).getTime() - new Date(b.data_hora).getTime()
       })
-      
       setAppointments(sorted)
     } catch (err) {
       console.error("[v0] Error loading appointments:", err)
       toast.error("Erro ao carregar agendamentos")
     } finally {
       setLoadingData(false)
+    }
+  }
+
+  const loadAllAppointments = async () => {
+    try {
+      const data = await getAllAgendamentos()
+      setAllAppointments(data)
+    } catch (err) {
+      console.error("[v0] Error loading all appointments:", err)
     }
   }
 
@@ -115,21 +120,25 @@ export default function RecepcaoPage() {
     )
   }
 
-  // Filter by status and search
-  const filteredAppointments = appointments.filter(apt => {
-    if (statusFilter !== "todos" && apt.status !== statusFilter) return false
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase()
-      const patientName = apt.paciente?.nome?.toLowerCase() || ""
-      const patientCpf = apt.paciente?.cpf || ""
-      return (
-        patientName.includes(query) ||
-        patientCpf.includes(query.replace(/\D/g, "")) ||
-        apt.codigo.toLowerCase().includes(query) ||
-        apt.medico_nome.toLowerCase().includes(query)
-      )
+  // When search is active, search across ALL appointments regardless of date
+  // When no search, filter only appointments from selected date
+  const isSearching = searchQuery.trim().length > 0
+  const sourceList = isSearching ? allAppointments : appointments
+
+  const filteredAppointments = sourceList.filter(apt => {
+    if (!isSearching) {
+      if (statusFilter !== "todos" && apt.status !== statusFilter) return false
+      return true
     }
-    return true
+    const query = searchQuery.toLowerCase()
+    const patientName = apt.paciente?.nome?.toLowerCase() || ""
+    const patientCpf = apt.paciente?.cpf || ""
+    return (
+      patientName.includes(query) ||
+      patientCpf.includes(query.replace(/\D/g, "")) ||
+      apt.codigo.toLowerCase().includes(query) ||
+      apt.medico_nome.toLowerCase().includes(query)
+    )
   })
 
   // Stats
@@ -192,7 +201,7 @@ export default function RecepcaoPage() {
             size="sm"
             onClick={(e) => { e.stopPropagation(); handleStatusChange(apt, "confirmado") }}
             disabled={isLoading}
-            className="h-7 text-xs bg-[#00E96A] text-black hover:bg-[#00E96A]/90"
+            className="h-7 text-xs bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <Check className="h-3 w-3 mr-1" />
             Confirmar
@@ -252,52 +261,49 @@ export default function RecepcaoPage() {
   return (
     <main className="min-h-screen bg-background">
       {/* Top Navigation */}
-      <header className="bg-card border-b border-border px-4 py-3">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/recepcao" className="flex items-center gap-2">
-            <Home className="h-5 w-5 text-primary" />
-          </Link>
-          
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground hidden sm:inline">
-              {format(new Date(), "EEEE, d 'de' MMMM", { locale: ptBR })}
-            </span>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                <span className="text-xs font-bold text-primary-foreground">
-                  {session.nome.split(" ").map((n: string) => n[0]).slice(0, 2).join("")}
-                </span>
-              </div>
-              <span className="text-sm font-medium text-foreground hidden sm:inline">{session.nome}</span>
-              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                session?.setor === "administracao"
-                  ? "bg-purple-100 text-purple-700"
-                  : "bg-blue-100 text-blue-700"
-              }`}>
-                {session?.setor === "administracao" ? "Administração" : "Recepção"}
+      <header className="bg-primary border-b border-primary/80 px-4 py-3">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-8 h-8 bg-primary-foreground/20 rounded-full flex items-center justify-center shrink-0">
+              <span className="text-xs font-bold text-primary-foreground">
+                {session.nome.split(" ").map((n: string) => n[0]).slice(0, 2).join("")}
               </span>
             </div>
+            <span className="text-sm font-semibold text-primary-foreground truncate">{session.nome}</span>
+            <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${
+              session?.setor === "administracao"
+                ? "bg-primary-foreground/25 text-primary-foreground"
+                : "bg-primary-foreground/20 text-primary-foreground"
+            }`}>
+              {session?.setor === "administracao" ? "Administração" : "Recepção"}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0">
+            <span className="text-sm text-primary-foreground/80 hidden md:inline">
+              {format(new Date(), "EEEE, d 'de' MMMM", { locale: ptBR })}
+            </span>
             {session?.setor === "administracao" && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => router.push("/admin/painel")}
-                className="gap-2 text-sm"
+                className="gap-2 text-sm border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10 bg-transparent"
               >
                 <UserCog className="h-4 w-4" />
-                Painel Admin
+                <span className="hidden sm:inline">Painel Admin</span>
               </Button>
             )}
             {mounted && (
-              <button 
+              <button
                 onClick={toggleTheme}
-                className="p-2 rounded-full hover:bg-muted transition-colors"
+                className="p-2 rounded-full hover:bg-primary-foreground/15 transition-colors"
                 aria-label="Alternar tema"
               >
                 {theme === "light" ? (
-                  <Moon className="h-4 w-4 text-foreground" />
+                  <Moon className="h-4 w-4 text-primary-foreground" />
                 ) : (
-                  <Sun className="h-4 w-4 text-foreground" />
+                  <Sun className="h-4 w-4 text-primary-foreground" />
                 )}
               </button>
             )}
@@ -305,7 +311,7 @@ export default function RecepcaoPage() {
               variant="ghost"
               size="sm"
               onClick={handleLogout}
-              className="text-muted-foreground hover:text-foreground"
+              className="text-primary-foreground hover:bg-primary-foreground/15 hover:text-primary-foreground"
             >
               <LogOut className="h-4 w-4" />
             </Button>
@@ -332,7 +338,7 @@ export default function RecepcaoPage() {
           </div>
           <div className="bg-card border border-border rounded-xl p-4">
             <div className="flex items-center gap-2 mb-1">
-              <Users className="h-4 w-4 text-[#00E96A]" />
+              <Users className="h-4 w-4 text-primary" />
               <span className="text-xs text-muted-foreground">Confirmados</span>
             </div>
             <p className="text-2xl font-bold text-foreground">{stats.confirmado}</p>
@@ -407,9 +413,13 @@ export default function RecepcaoPage() {
           ) : filteredAppointments.length === 0 ? (
             <div className="text-center py-12">
               <CalendarDays className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-1">Nenhuma consulta para este dia</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-1">
+                {isSearching ? "Nenhum resultado encontrado" : "Nenhuma consulta para este dia"}
+              </h3>
               <p className="text-sm text-muted-foreground">
-                {searchQuery ? "Tente outra busca" : "Selecione outra data ou aguarde novos agendamentos"}
+                {isSearching
+                  ? "Nenhum agendamento encontrado para esta busca"
+                  : "Selecione outra data ou aguarde novos agendamentos"}
               </p>
             </div>
           ) : (
@@ -445,6 +455,11 @@ export default function RecepcaoPage() {
                         <p className="text-sm text-muted-foreground truncate">
                           {apt.medico_nome} - {apt.especialidade}
                         </p>
+                        {isSearching && (
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            📅 {format(new Date(apt.data_hora), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                          </p>
+                        )}
                       </div>
                       <span className="text-xs text-muted-foreground">{apt.codigo}</span>
                     </div>
@@ -538,7 +553,7 @@ export default function RecepcaoPage() {
                       <Button
                         onClick={() => handleStatusChange(selectedAppointment, "confirmado")}
                         disabled={isLoading}
-                        className="flex-1 bg-[#00E96A] text-black hover:bg-[#00E96A]/90"
+                        className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
                       >
                         <Check className="h-4 w-4 mr-2" />
                         Confirmar

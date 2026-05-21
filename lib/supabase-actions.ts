@@ -470,3 +470,15 @@ export async function getHorariosOcupados(
   if (error) return []
   return (data || []).map((a) => a.data_hora)
 }
+
+export async function getAllAgendamentos(): Promise<Agendamento[]> {
+  const { data, error } = await supabase
+    .from("agendamentos")
+    .select("*, paciente:pacientes(*), medico:medicos(*)")
+    .order("data_hora", { ascending: false })
+  if (error) {
+    console.error("Error fetching all agendamentos:", error)
+    return []
+  }
+  return data || []
+}

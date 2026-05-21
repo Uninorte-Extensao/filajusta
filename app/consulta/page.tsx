@@ -287,7 +287,7 @@ function ConsultaContent() {
       {/* Header with Logo */}
       <div className="bg-primary p-4 pb-6">
         <div className="max-w-md mx-auto flex items-center gap-3">
-          <Image src="/logo.jpg" alt="VidaPlena" width={48} height={48} className="rounded-lg" />
+          <Image src="/logo.png" alt="VidaPlena" width={80} height={80} className="rounded-lg" />
           <div>
             <h2 className="text-xl font-bold text-primary-foreground">FilaJusta</h2>
             <p className="text-sm text-primary-foreground/80">VidaPlena</p>

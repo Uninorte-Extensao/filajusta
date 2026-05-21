@@ -3,7 +3,7 @@ import { type AppointmentStatus } from '@/contexts/app-context'
 
 const STATUS_CONFIG: Record<AppointmentStatus, { label: string; bgColor: string }> = {
   aguardando: { label: 'Aguardando', bgColor: 'bg-[#F5A623]' },
-  confirmado: { label: 'Confirmado', bgColor: 'bg-[#00E96A]' },
+  confirmado: { label: 'Confirmado', bgColor: 'bg-primary' },
   atendido: { label: 'Atendido', bgColor: 'bg-[#4A90D9]' },
   cancelado: { label: 'Cancelado', bgColor: 'bg-[#E94040]' },
   falta: { label: 'Falta', bgColor: 'bg-[#888888]' },
@@ -29,7 +29,7 @@ export function StatusBadge({ status, size = 'sm' }: StatusBadgeProps) {
       className={cn(
         'inline-flex items-center rounded-full font-medium',
         config.bgColor,
-        status === 'confirmado' || status === 'aguardando' ? 'text-black' : 'text-white',
+        status === 'confirmado' ? 'text-primary-foreground' : status === 'aguardando' ? 'text-black' : 'text-white',
         sizeClasses[size]
       )}
     >

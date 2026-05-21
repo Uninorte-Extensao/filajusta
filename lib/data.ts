@@ -65,7 +65,7 @@ export type AppointmentStatus = 'aguardando' | 'confirmado' | 'cancelado' | 'ate
 
 export const STATUS_CONFIG: Record<AppointmentStatus, { label: string; color: string; bgColor: string }> = {
   aguardando: { label: 'Aguardando Confirmação', color: '#F5A623', bgColor: 'bg-[#F5A623]' },
-  confirmado: { label: 'Confirmado', color: '#00E96A', bgColor: 'bg-[#00E96A]' },
+  confirmado: { label: 'Confirmado', color: '#45AC8B', bgColor: 'bg-primary' },
   cancelado: { label: 'Cancelado', color: '#E94040', bgColor: 'bg-[#E94040]' },
   atendido: { label: 'Atendido', color: '#4A90D9', bgColor: 'bg-[#4A90D9]' },
   falta: { label: 'Falta', color: '#888888', bgColor: 'bg-[#888888]' },

@@ -8,6 +8,7 @@ import { toast } from "sonner"
 import Image from "next/image"
 import { PriorityBadge } from "@/components/priority-badge"
 import { getAgendamentoByCodigo, type Agendamento } from "@/lib/supabase-actions"
+import { useApp } from "@/contexts/app-context"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 
@@ -23,10 +24,15 @@ function SuccessContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const codigo = searchParams.get("codigo")
+  const { resetBooking } = useApp()
   
   const [appointment, setAppointment] = useState<Agendamento | null>(null)
   const [loading, setLoading] = useState(true)
   const [toastShown, setToastShown] = useState(false)
+
+  useEffect(() => {
+    resetBooking()
+  }, [resetBooking])
 
   useEffect(() => {
     async function load() {
