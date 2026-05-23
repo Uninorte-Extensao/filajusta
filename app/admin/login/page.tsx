@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useApp } from '@/contexts/app-context'
+import { loginFuncionario } from '@/lib/api-actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -13,7 +14,7 @@ import { toast } from 'sonner'
 
 export default function AdminLoginPage() {
   const router = useRouter()
-  const { login, session, logout, loginAttempts, lockoutUntil } = useApp()
+  const { session, logout, loginAttempts, lockoutUntil } = useApp()
   
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -64,17 +65,14 @@ export default function AdminLoginPage() {
     setIsLoading(true)
     setError('')
     
-    await new Promise(resolve => setTimeout(resolve, 800))
-
-    const result = await login(email, password)
-
-    setIsLoading(false)
-
-    if (result.success) {
+    try {
+      await loginFuncionario(email, password)
       toast.success('Login realizado com sucesso!')
-      router.push('/recepcao')
-    } else {
-      setError(result.error || 'Credenciais inválidas')
+      window.location.href = '/recepcao'
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Credenciais inválidas')
+    } finally {
+      setIsLoading(false)
     }
   }
 

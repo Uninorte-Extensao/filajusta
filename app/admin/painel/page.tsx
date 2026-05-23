@@ -60,7 +60,7 @@ import {
   deleteFuncionario,
   type Funcionario,
   type Medico,
-} from "@/lib/supabase-actions"
+} from "@/lib/api-actions"
 
 const ESPECIALIDADES = [
   { id: "clinico-geral", nome: "Clínico Geral", emoji: "🩺" },
@@ -134,6 +134,7 @@ export default function AdminPainelPage() {
 
   const handleLogout = () => {
     localStorage.removeItem("filajusta_session")
+    localStorage.removeItem("filajusta_token")
     router.push("/admin/login")
   }
 

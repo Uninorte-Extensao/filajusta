@@ -14,11 +14,13 @@ import { toast } from "sonner"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { 
-  getAgendamentoByCodigo, 
-  getAgendamentosByCpf, 
-  updateAgendamentoStatus,
+  getAgendamentoByCodigo,
+  getAgendamentosByCpf,
+  searchByCodigoAndCpf,
+  confirmarConsulta,
+  cancelarConsulta,
   type Agendamento 
-} from "@/lib/supabase-actions"
+} from "@/lib/api-actions"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -80,12 +82,15 @@ function ConsultaContent() {
     try {
       let found: Agendamento[] = []
       
-      if (code && code.trim()) {
-        const result = await getAgendamentoByCodigo(code.trim())
-        if (result) {
-          found = [result]
-        }
-      } else if (cpf && cpf.trim()) {
+      const cpfClean = cpf.replace(/\D/g, "")
+
+      if (code && code.trim() && cpfClean.length === 11) {
+        const result = await searchByCodigoAndCpf(code.trim(), cpfClean)
+        if (result) found = [result]
+      } else if (code && code.trim()) {
+        const result = await getAgendamentoByCodigo(code.trim(), cpf)
+        if (result) found = [result]
+      } else if (cpfClean.length === 11) {
         found = await getAgendamentosByCpf(cpf)
       }
       
@@ -109,9 +114,10 @@ function ConsultaContent() {
 
   const handleConfirm = async (apt: Agendamento) => {
     setIsLoading(true)
+    const cpf = apt.paciente?.cpf || searchCpf.replace(/\D/g, "")
     
     try {
-      const success = await updateAgendamentoStatus(apt.id, "confirmado")
+      const success = await confirmarConsulta(apt.codigo, cpf)
       if (success) {
         setResults(prev => prev.map(a => 
           a.id === apt.id ? { ...a, status: "confirmado" } : a
@@ -133,8 +139,10 @@ function ConsultaContent() {
     setShowCancelDialog(false)
     setIsLoading(true)
     
+    const cpf = selectedAppointment.paciente?.cpf || searchCpf.replace(/\D/g, "")
+
     try {
-      const success = await updateAgendamentoStatus(selectedAppointment.id, "cancelado")
+      const success = await cancelarConsulta(selectedAppointment.codigo, cpf)
       if (success) {
         setResults(prev => prev.map(a => 
           a.id === selectedAppointment.id ? { ...a, status: "cancelado" } : a

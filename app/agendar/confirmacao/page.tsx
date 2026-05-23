@@ -9,7 +9,7 @@ import { ArrowLeft, Building2, UserRound, CalendarDays, User, CreditCard, Phone,
 import { useEffect, useState } from "react"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { createAgendamento } from "@/lib/supabase-actions"
+import { createAgendamento } from "@/lib/api-actions"
 
 const STEP_LABELS = ["Especialidade", "Medico", "Data e Horario", "Seus Dados", "Confirmar"]
 
@@ -20,13 +20,19 @@ function maskCpf(cpf: string): string {
 }
 
 function formatDate(dateStr: string): string {
-  const date = new Date(dateStr + "T12:00:00")
-  return format(date, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+  if (!dateStr) return "Data não informada"
+  try {
+    const date = new Date(dateStr + "T12:00:00")
+    if (isNaN(date.getTime())) return dateStr
+    return format(date, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+  } catch {
+    return dateStr
+  }
 }
 
 export default function ConfirmacaoPage() {
   const router = useRouter()
-  const { booking } = useApp()
+  const { booking, resetBooking } = useApp()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [confirmed, setConfirmed] = useState(false)
@@ -38,43 +44,50 @@ export default function ConfirmacaoPage() {
     }
   }, [booking, router, confirmed])
 
-  if (!booking.especialidade || !booking.medico || !booking.data || !booking.horario || !booking.nome) {
+  if (!confirmed && (!booking.especialidade || !booking.medico || !booking.data || !booking.horario || !booking.nome)) {
     return null
   }
 
   const handleConfirm = async () => {
     setIsLoading(true)
     setError(null)
-    
+
     try {
-      // Create appointment in Supabase
-      const result = await createAgendamento({
-        paciente: {
-          nome: booking.nome!,
-          cpf: booking.cpf!,
-          data_nascimento: booking.dataNascimento!,
-          telefone: booking.telefone!,
-          cartao_sus: booking.cartaoSus || undefined,
-        },
+      const body = {
         medico_id: booking.medico!,
-        medico_nome: booking.medicoNome!,
-        especialidade: booking.especialidadeNome!,
-        data_hora: `${booking.data}T${booking.horario}:00`,
-        prioridade: booking.prioridade,
-        descricao_prioridade: booking.tipoDeficiencia || undefined,
+  consulta_em: `${booking.data}T${booking.horario}:00-04:00`,
+  paciente_nome: booking.nome!,
+  paciente_cpf: booking.cpf!.replace(/\D/g, ""),
+  paciente_telefone: booking.telefone!.replace(/\D/g, ""),
+  paciente_email: null,
+  prioridade: booking.prioridade,
+  descricao_prioridade: booking.descricaoDeficiencia || null,
+      }
+
+      console.log("[api] POST /api/consultas body:", JSON.stringify(body))
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/consultas`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
       })
-      
-      if (!result.success || !result.codigo) {
-        setError(result.error || "Erro ao criar agendamento")
+
+      const json = await res.json()
+      console.log("[api] POST /api/consultas response:", json)
+
+      if (!json.sucesso) {
+        setError(json.mensagem || "Erro ao criar agendamento")
         setIsLoading(false)
         return
       }
 
       setConfirmed(true)
-      router.push(`/sucesso?codigo=${result.codigo}`)
+      localStorage.setItem("filajusta_last_booking", json.dados.codigo)
+      resetBooking()
+      router.push("/")
     } catch (err) {
-      console.error("[v0] Error creating appointment:", err)
-      setError("Erro inesperado. Tente novamente.")
+      console.error("[api] Erro ao criar agendamento:", err)
+      setError("Erro ao conectar com o servidor. Verifique sua conexão.")
       setIsLoading(false)
     }
   }
@@ -107,7 +120,6 @@ export default function ConfirmacaoPage() {
           Revise seu agendamento
         </h1>
 
-        {/* Error Message */}
         {error && (
           <div className="bg-destructive/10 border border-destructive text-destructive rounded-xl p-4 mb-4">
             {error}
@@ -117,18 +129,14 @@ export default function ConfirmacaoPage() {
         {/* Summary Card */}
         <div className="bg-primary rounded-2xl p-5 mb-6">
           <div className="space-y-4">
-            {/* Specialty */}
             <div className="flex items-start gap-3">
               <Building2 className="h-5 w-5 text-primary-foreground mt-0.5" />
               <div>
                 <p className="text-xs text-primary-foreground/70">Especialidade</p>
-                <p className="font-semibold text-primary-foreground">
-                  {booking.especialidadeNome}
-                </p>
+                <p className="font-semibold text-primary-foreground">{booking.especialidadeNome}</p>
               </div>
             </div>
 
-            {/* Doctor */}
             <div className="flex items-start gap-3">
               <UserRound className="h-5 w-5 text-primary-foreground mt-0.5" />
               <div>
@@ -138,7 +146,6 @@ export default function ConfirmacaoPage() {
               </div>
             </div>
 
-            {/* Date & Time */}
             <div className="flex items-start gap-3">
               <CalendarDays className="h-5 w-5 text-primary-foreground mt-0.5" />
               <div>
@@ -151,7 +158,6 @@ export default function ConfirmacaoPage() {
 
             <hr className="border-primary-foreground/20" />
 
-            {/* Patient Name */}
             <div className="flex items-start gap-3">
               <User className="h-5 w-5 text-primary-foreground mt-0.5" />
               <div>
@@ -160,7 +166,6 @@ export default function ConfirmacaoPage() {
               </div>
             </div>
 
-            {/* CPF */}
             <div className="flex items-start gap-3">
               <CreditCard className="h-5 w-5 text-primary-foreground mt-0.5" />
               <div>
@@ -169,7 +174,6 @@ export default function ConfirmacaoPage() {
               </div>
             </div>
 
-            {/* Phone */}
             <div className="flex items-start gap-3">
               <Phone className="h-5 w-5 text-primary-foreground mt-0.5" />
               <div>
@@ -178,7 +182,6 @@ export default function ConfirmacaoPage() {
               </div>
             </div>
 
-            {/* Priority */}
             <div className="flex items-start gap-3">
               <Tag className="h-5 w-5 text-primary-foreground mt-0.5" />
               <div>
@@ -190,15 +193,9 @@ export default function ConfirmacaoPage() {
                     <PriorityBadge priority={booking.prioridade} size="md" />
                   )}
                 </div>
-                {booking.prioridade === "pcd" && booking.tipoDeficiencia && (
-                  <p className="text-sm text-primary-foreground/80 mt-1">
-                    Tipo: {booking.tipoDeficiencia}
-                  </p>
-                )}
               </div>
             </div>
 
-            {/* Document Status */}
             <div className="flex items-start gap-3">
               <FileText className="h-5 w-5 text-primary-foreground mt-0.5" />
               <div>
@@ -206,7 +203,7 @@ export default function ConfirmacaoPage() {
                 {booking.documentoFrente ? (
                   <p className="font-semibold text-primary-foreground">Documento enviado</p>
                 ) : (
-                  <p className="text-sm text-primary-foreground/80">Sem documento - apresentar na recepcao</p>
+                  <p className="text-sm text-primary-foreground/80">Sem documento — apresentar na recepcao</p>
                 )}
               </div>
             </div>
@@ -221,7 +218,6 @@ export default function ConfirmacaoPage() {
           </p>
         </div>
 
-        {/* Action Buttons */}
         <div className="space-y-3">
           <Button
             onClick={handleConfirm}

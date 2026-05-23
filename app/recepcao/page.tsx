@@ -46,7 +46,7 @@ import {
   getAllAgendamentos,
   updateAgendamentoStatus,
   type Agendamento 
-} from "@/lib/supabase-actions"
+} from "@/lib/api-actions"
 
 type AppointmentStatus = "aguardando" | "confirmado" | "atendido" | "cancelado" | "falta"
 
@@ -187,6 +187,7 @@ export default function RecepcaoPage() {
 
   const handleLogout = () => {
     localStorage.removeItem("filajusta_session")
+    localStorage.removeItem("filajusta_token")
     router.push("/admin/login")
   }
 

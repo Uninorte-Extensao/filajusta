@@ -428,6 +428,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     setSession(null)
     localStorage.removeItem('filajusta_session')
+    localStorage.removeItem('filajusta_token')
   }, [])
 
   const register = useCallback((data: { nome: string; email: string; cpf: string; cargo: string; setor: "recepcao" | "administracao"; senha: string }): { success: boolean; error?: string } => {

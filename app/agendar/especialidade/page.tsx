@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Check, ArrowLeft, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
-import { getEspecialidades, type Especialidade } from "@/lib/supabase-actions"
+import { getEspecialidades, type Especialidade } from "@/lib/api-actions"
 
 const STEP_LABELS = ["Especialidade", "Médico", "Data e Horário", "Seus Dados", "Confirmar"]
 

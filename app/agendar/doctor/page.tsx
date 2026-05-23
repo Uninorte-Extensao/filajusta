@@ -7,7 +7,7 @@ import { StepProgress } from "@/components/step-progress"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Check, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { getMedicosByEspecialidade, type Medico } from "@/lib/supabase-actions"
+import { getMedicosByEspecialidade, type Medico } from "@/lib/api-actions"
 
 const STEP_LABELS = ["Especialidade", "Medico", "Data e Horario", "Seus Dados", "Confirmar"]
 
