@@ -99,7 +99,7 @@ export default function HorarioPage() {
         <button onClick={handleBack} className="p-2 rounded-full hover:bg-muted">
           <ArrowLeft size={20} className="text-foreground" />
         </button>
-        <span className="font-semibold text-base text-foreground">Data e Horario</span>
+        <span className="font-semibold text-base text-foreground">Data e Horário</span>
         <div className="w-9" />
       </nav>
 
@@ -113,7 +113,7 @@ export default function HorarioPage() {
       {/* Content */}
       <div className="p-4 max-w-md mx-auto">
         <h1 className="text-xl font-bold text-foreground mb-6">
-          Quando voce quer ser atendido?
+          Quando você quer ser atendido?
         </h1>
 
         {/* Calendar - Simple Date Selection */}
@@ -122,7 +122,7 @@ export default function HorarioPage() {
             <h3 className="font-semibold text-foreground">
               {format(currentMonth, 'MMMM yyyy', { locale: ptBR })}
             </h3>
-            <span className="text-xs text-muted-foreground">Proximos 7 dias</span>
+            <span className="text-xs text-muted-foreground">Próximos 7 dias</span>
           </div>
 
           {/* Available dates */}
@@ -156,7 +156,7 @@ export default function HorarioPage() {
           <div className="animate-fade-in">
             {/* Morning Slots */}
             <div className="mb-4">
-              <h3 className="text-sm font-medium text-muted-foreground mb-2">Manha</h3>
+              <h3 className="text-sm font-medium text-muted-foreground mb-2">Manhã</h3>
               <div className="grid grid-cols-4 gap-2">
                 {TIME_SLOTS.morning.map((slot) => {
                   const disabled = isSlotDisabled(slot)
@@ -220,7 +220,7 @@ export default function HorarioPage() {
           disabled={!booking.data || !booking.horario}
           className="w-full h-13 text-base font-semibold bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl disabled:opacity-50"
         >
-          Proximo
+          Próximo
         </Button>
       </div>
     </main>

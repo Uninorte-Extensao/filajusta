@@ -77,7 +77,7 @@ export default function DoctorPage() {
         <button onClick={handleBack} className="p-2 rounded-full hover:bg-muted">
           <ArrowLeft size={20} className="text-foreground" />
         </button>
-        <span className="font-semibold text-base text-foreground">Medico</span>
+        <span className="font-semibold text-base text-foreground">Médico</span>
         <div className="w-9" />
       </nav>
 
