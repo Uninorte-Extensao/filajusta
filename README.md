@@ -536,7 +536,7 @@ Para contribuir:
 
 ## 👨‍💻 Autor
 
-Desenvolvido por Yandrew Souza, Alexson Brito, Pedro Ordones, Alberto Cordova
+Desenvolvido por Yandrew Souza, Alexson Brito, Pedro Ordones, Alberto Cordova, Yvens Souza
 
 GitHub: [@Yandrew9393](https://github.com/Yandrew9393)
 
