@@ -370,6 +370,96 @@ export async function resetPassword(
       "Redefinição de senha não disponível pela API.",
   }
 }
+export async function solicitarRecuperacaoSenha(
+  email: string
+): Promise<{ success: boolean; error?: string }> {
+  const res = await fetch(
+    apiUrl("/api/autenticacao/recuperacao/solicitar"),
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    }
+  )
+
+  const json = await res.json()
+
+  if (!res.ok || !json.sucesso) {
+    return {
+      success: false,
+      error:
+        json.mensagem ||
+        "Não foi possível solicitar a recuperação",
+    }
+  }
+
+  return { success: true }
+}
+
+export async function validarCodigoRecuperacao(
+  email: string,
+  codigo: string
+): Promise<{ success: boolean; error?: string }> {
+  const res = await fetch(
+    apiUrl("/api/autenticacao/recuperacao/validar"),
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, codigo }),
+    }
+  )
+
+  const json = await res.json()
+
+  if (!res.ok || !json.sucesso) {
+    return {
+      success: false,
+      error:
+        json.mensagem ||
+        "Código inválido ou expirado",
+    }
+  }
+
+  return { success: true }
+}
+
+export async function redefinirSenha(
+  email: string,
+  codigo: string,
+  novaSenha: string
+): Promise<{ success: boolean; error?: string }> {
+  const res = await fetch(
+    apiUrl("/api/autenticacao/recuperacao/redefinir"),
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        codigo,
+        novaSenha,
+      }),
+    }
+  )
+
+  const json = await res.json()
+
+  if (!res.ok || !json.sucesso) {
+    return {
+      success: false,
+      error:
+        json.mensagem ||
+        "Não foi possível redefinir a senha",
+    }
+  }
+
+  return { success: true }
+}
 
 // ─── ESPECIALIDADES ─────────────────────────────
 
