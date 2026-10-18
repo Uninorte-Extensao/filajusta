@@ -67,8 +67,8 @@ flowchart LR
 
 Atualmente, o projeto está organizado em duas aplicações principais:
 
-- FrontEnd
-- backEnd-filaJusta
+- frontend
+- backend
 
 O FrontEnd utiliza Next.js, React e TypeScript.
 
