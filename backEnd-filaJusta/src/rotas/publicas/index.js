@@ -11,6 +11,7 @@ const consultaServico = require('../../modulos/consultas/consulta.servico');
 const documentoServico = require('../../modulos/documentos/documento.servico');
 const {
   criarConsultaPublica,
+  medicosPublicos,
   horariosPublicos,
   consultaPorCodigo,
   alterarConsultaPublica,
@@ -28,8 +29,16 @@ rotas.get(
 
 rotas.get(
   '/medicos',
-  tratarAsync(async (_req, res) => {
-    return sucesso(res, await medicoServico.listarPublico(), 'Medicos encontrados');
+  validar(medicosPublicos),
+  tratarAsync(async (req, res) => {
+    const filtros = req.validado.consulta;
+    const medicos = await medicoServico.listarPublico(filtros);
+    const possuiFiltroEspecialidade = Boolean(filtros.especialidade_id || filtros.especialidade);
+    const mensagem = possuiFiltroEspecialidade && medicos.length === 0
+      ? 'Nenhum médico encontrado para esta especialidade'
+      : 'Medicos encontrados';
+
+    return sucesso(res, medicos, mensagem);
   })
 );
 

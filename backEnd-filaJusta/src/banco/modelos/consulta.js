@@ -43,6 +43,14 @@ module.exports = (sequelize, DataTypes) => {
       motivo_cancelamento: {
         type: DataTypes.TEXT,
         allowNull: true
+      },
+      score_risco: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+      },
+      nivel_risco: {
+        type: DataTypes.STRING(10),
+        defaultValue: 'baixo' // 'baixo', 'medio', 'alto'
       }
     },
     {

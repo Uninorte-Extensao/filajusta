@@ -11,6 +11,10 @@ const { loggerHttp } = require('./utils/logger');
 
 const app = express();
 
+if (ambiente.producao) {
+  app.set('trust proxy', 1);
+}
+
 app.use(helmet());
 app.use(cors({ origin: ambiente.cors.origem === '*' ? true : ambiente.cors.origem }));
 app.use(express.json({ limit: '1mb' }));

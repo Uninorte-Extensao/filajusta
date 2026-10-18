@@ -1,37 +1,103 @@
 {
   "info": {
-    "_postman_id": "0db2190a-7532-4568-84d7-e2dbafecb1cc",
+    "_postman_id": "0641e4d4-8438-433c-ac2e-fe7c392700e7",
     "name": "FilaJusta",
     "description": "Colecao Postman com fluxo publico sem JWT e fluxo interno protegido por JWT. Prioridades informativas: normal, idoso, pcd, gestante.",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "46564883",
+    "_collection_link": "https://go.postman.co/collection/46564883-0641e4d4-8438-433c-ac2e-fe7c392700e7?source=collection_link"
   },
   "item": [
     {
       "name": "Publico",
-      "description": "Rotas sem autenticacao. Paciente usa CPF e codigo VPL-XXXX.",
       "item": [
         {
           "name": "Listar especialidades",
-          "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/especialidades", "host": ["{{base_url}}"], "path": ["api", "especialidades"] } }
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/especialidades",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "especialidades"
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Listar medicos",
-          "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/medicos", "host": ["{{base_url}}"], "path": ["api", "medicos"] } }
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/medicos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "medicos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Médicos por Especialidade",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/medicos?especialidade_id={{especialidade_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "medicos"
+              ],
+              "query": [
+                {
+                  "key": "especialidade_id",
+                  "value": "{{especialidade_id}}"
+                }
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Horarios disponiveis",
           "request": {
             "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{base_url}}/api/horarios?medico_id={{medico_id}}&data=2026-05-15",
-              "host": ["{{base_url}}"],
-              "path": ["api", "horarios"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "horarios"
+              ],
               "query": [
-                { "key": "medico_id", "value": "{{medico_id}}" },
-                { "key": "data", "value": "2026-05-15" }
+                {
+                  "key": "medico_id",
+                  "value": "{{medico_id}}"
+                },
+                {
+                  "key": "data",
+                  "value": "2026-05-15"
+                }
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Agendar consulta",
@@ -49,102 +115,555 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"medico_id\": \"{{medico_id}}\",\n  \"consulta_em\": \"2026-05-15T07:00:00-04:00\",\n  \"paciente_nome\": \"Maria da Silva\",\n  \"paciente_cpf\": \"529.982.247-25\",\n  \"paciente_telefone\": \"(92) 99999-0000\",\n  \"paciente_email\": \"maria@example.com\",\n  \"prioridade\": \"idoso\"\n}"
             },
-            "url": { "raw": "{{base_url}}/api/consultas", "host": ["{{base_url}}"], "path": ["api", "consultas"] }
-          }
+            "url": {
+              "raw": "{{base_url}}/api/consultas",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "consultas"
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Consultar por codigo",
           "request": {
             "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{base_url}}/api/consultas/codigo/{{codigo_consulta}}?cpf={{cpf_paciente}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "consultas", "codigo", "{{codigo_consulta}}"],
-              "query": [{ "key": "cpf", "value": "{{cpf_paciente}}" }]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "consultas",
+                "codigo",
+                "{{codigo_consulta}}"
+              ],
+              "query": [
+                {
+                  "key": "cpf",
+                  "value": "{{cpf_paciente}}"
+                }
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Confirmar consulta",
           "request": {
             "method": "PATCH",
+            "header": [],
             "url": {
               "raw": "{{base_url}}/api/consultas/codigo/{{codigo_consulta}}/confirmar?cpf={{cpf_paciente}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "consultas", "codigo", "{{codigo_consulta}}", "confirmar"],
-              "query": [{ "key": "cpf", "value": "{{cpf_paciente}}" }]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "consultas",
+                "codigo",
+                "{{codigo_consulta}}",
+                "confirmar"
+              ],
+              "query": [
+                {
+                  "key": "cpf",
+                  "value": "{{cpf_paciente}}"
+                }
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Cancelar consulta",
           "request": {
             "method": "PATCH",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"motivo_cancelamento\": \"Nao poderei comparecer\"\n}" },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"motivo_cancelamento\": \"Nao poderei comparecer\"\n}"
+            },
             "url": {
               "raw": "{{base_url}}/api/consultas/codigo/{{codigo_consulta}}/cancelar?cpf={{cpf_paciente}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "consultas", "codigo", "{{codigo_consulta}}", "cancelar"],
-              "query": [{ "key": "cpf", "value": "{{cpf_paciente}}" }]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "consultas",
+                "codigo",
+                "{{codigo_consulta}}",
+                "cancelar"
+              ],
+              "query": [
+                {
+                  "key": "cpf",
+                  "value": "{{cpf_paciente}}"
+                }
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Upload documento",
           "request": {
             "method": "POST",
+            "header": [],
             "body": {
               "mode": "formdata",
               "formdata": [
-                { "key": "codigo", "value": "{{codigo_consulta}}", "type": "text" },
-                { "key": "cpf", "value": "{{cpf_paciente}}", "type": "text" },
-                { "key": "tipo", "value": "documento", "type": "text" },
-                { "key": "frente", "type": "file", "src": [] },
-                { "key": "verso", "type": "file", "src": [] }
+                {
+                  "key": "codigo",
+                  "value": "{{codigo_consulta}}",
+                  "type": "text"
+                },
+                {
+                  "key": "cpf",
+                  "value": "{{cpf_paciente}}",
+                  "type": "text"
+                },
+                {
+                  "key": "tipo",
+                  "value": "documento",
+                  "type": "text"
+                },
+                {
+                  "key": "frente",
+                  "type": "file",
+                  "value": null
+                },
+                {
+                  "key": "verso",
+                  "type": "file",
+                  "value": null
+                }
               ]
             },
-            "url": { "raw": "{{base_url}}/api/documentos/upload", "host": ["{{base_url}}"], "path": ["api", "documentos", "upload"] }
-          }
+            "url": {
+              "raw": "{{base_url}}/api/documentos/upload",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "documentos",
+                "upload"
+              ]
+            }
+          },
+          "response": []
         }
-      ]
+      ],
+      "description": "Rotas sem autenticacao. Paciente usa CPF e codigo VPL-XXXX."
     },
     {
       "name": "Recepcao",
-      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
       "item": [
-        { "name": "Agenda do dia", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/recepcao/agenda/dia?data=2026-05-15", "host": ["{{base_url}}"], "path": ["api", "recepcao", "agenda", "dia"], "query": [{ "key": "data", "value": "2026-05-15" }] } } },
-        { "name": "Listar consultas", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/recepcao/consultas", "host": ["{{base_url}}"], "path": ["api", "recepcao", "consultas"] } } },
-        { "name": "Marcar falta", "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"status\": \"falta\"\n}" }, "url": { "raw": "{{base_url}}/api/recepcao/consultas/{{consulta_id}}/status", "host": ["{{base_url}}"], "path": ["api", "recepcao", "consultas", "{{consulta_id}}", "status"] } } },
-        { "name": "Listar pacientes", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/recepcao/pacientes", "host": ["{{base_url}}"], "path": ["api", "recepcao", "pacientes"] } } },
-        { "name": "Download documento", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/recepcao/documentos/{{documento_id}}/download?lado=frente", "host": ["{{base_url}}"], "path": ["api", "recepcao", "documentos", "{{documento_id}}", "download"], "query": [{ "key": "lado", "value": "frente" }] } } }
-      ]
+        {
+          "name": "Agenda do dia",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/recepcao/agenda/dia?data=2026-05-15",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "recepcao",
+                "agenda",
+                "dia"
+              ],
+              "query": [
+                {
+                  "key": "data",
+                  "value": "2026-05-15"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar consultas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/recepcao/consultas",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "recepcao",
+                "consultas"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Marcar falta",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"falta\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/recepcao/consultas/{{consulta_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "recepcao",
+                "consultas",
+                "{{consulta_id}}",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Marcar atendido",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"status\": \"atendido\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/recepcao/consultas/{{consulta_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "recepcao",
+                "consultas",
+                "{{consulta_id}}",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar pacientes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/recepcao/pacientes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "recepcao",
+                "pacientes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Download documento",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/recepcao/documentos/{{documento_id}}/download?lado=frente",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "recepcao",
+                "documentos",
+                "{{documento_id}}",
+                "download"
+              ],
+              "query": [
+                {
+                  "key": "lado",
+                  "value": "frente"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token}}",
+            "type": "string"
+          }
+        ]
+      }
     },
     {
       "name": "Admin",
-      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
       "item": [
         {
           "name": "Login interno",
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["const json = pm.response.json();", "if (json.dados && json.dados.token) pm.environment.set('token', json.dados.token);"] } }],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.dados && json.dados.token) pm.environment.set('token', json.dados.token);"
+                ]
+              }
+            }
+          ],
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@filajusta.local\",\n  \"senha\": \"FilaJusta@123\"\n}" },
-            "url": { "raw": "{{base_url}}/api/autenticacao/login", "host": ["{{base_url}}"], "path": ["api", "autenticacao", "login"] }
-          }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@filajusta.local\",\n  \"senha\": \"FilaJusta@123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/autenticacao/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "autenticacao",
+                "login"
+              ]
+            }
+          },
+          "response": []
         },
-        { "name": "Usuario autenticado", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/autenticacao/me", "host": ["{{base_url}}"], "path": ["api", "autenticacao", "me"] } } },
-        { "name": "Listar usuarios", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/admin/usuarios", "host": ["{{base_url}}"], "path": ["api", "admin", "usuarios"] } } },
-        { "name": "Criar medico", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"especialidade_id\": \"{{especialidade_id}}\",\n  \"nome\": \"Dra. Ana Teste\",\n  \"crm\": \"CRM-AM 54321\",\n  \"telefone\": \"(92) 97777-0000\",\n  \"email\": \"ana@example.com\"\n}" }, "url": { "raw": "{{base_url}}/api/admin/medicos", "host": ["{{base_url}}"], "path": ["api", "admin", "medicos"] } } },
-        { "name": "Criar especialidade", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Dermatologia\",\n  \"descricao\": \"Atendimento dermatologico\"\n}" }, "url": { "raw": "{{base_url}}/api/admin/especialidades", "host": ["{{base_url}}"], "path": ["api", "admin", "especialidades"] } } },
-        { "name": "Agenda completa", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/admin/agenda/dia?data=2026-05-15", "host": ["{{base_url}}"], "path": ["api", "admin", "agenda", "dia"], "query": [{ "key": "data", "value": "2026-05-15" }] } } }
+        {
+          "name": "Usuario autenticado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/autenticacao/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "autenticacao",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar usuarios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/usuarios",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "usuarios"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Criar medico",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"especialidade_id\": \"{{especialidade_id}}\",\n  \"nome\": \"Dra. Ana Teste\",\n  \"crm\": \"CRM-AM 54321\",\n  \"telefone\": \"(92) 97777-0000\",\n  \"email\": \"ana@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/medicos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "medicos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Criar especialidade",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Dermatologia\",\n  \"descricao\": \"Atendimento dermatologico\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/especialidades",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "especialidades"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Agenda completa",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/agenda/dia?data=2026-05-15",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "agenda",
+                "dia"
+              ],
+              "query": [
+                {
+                  "key": "data",
+                  "value": "2026-05-15"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Listar Consultas de Alto Risco",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Métrica No-Show por especialidade",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "KPIs Gerais",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        }
       ]
     }
   ]

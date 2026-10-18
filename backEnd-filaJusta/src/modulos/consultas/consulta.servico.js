@@ -1,4 +1,4 @@
-const { sequelize } = require('../../banco/modelos');
+const { sequelize, Sequelize } = require('../../banco/modelos');
 const ErroAplicacao = require('../../utils/erroAplicacao');
 const { paraDataLocal, dayjs, inicioDoDia, fimDoDia, horarioComercial, formatarDataManaus } = require('../../utils/data');
 const { gerarCodigoConsulta } = require('../../utils/codigoConsulta');
@@ -11,6 +11,7 @@ const {
 const consultaRepositorio = require('./consulta.repositorio');
 const pacienteServico = require('../pacientes/paciente.servico');
 const medicoServico = require('../medicos/medico.servico');
+const { calcularRiscoNoShow } = require('../../utils/engineRisco');
 
 class ConsultaServico {
   async listar(filtros) {
@@ -42,50 +43,70 @@ class ConsultaServico {
     await medicoServico.garantirMedicoAtivo(normalizado.medico_id);
 
     try {
-      return await sequelize.transaction(async (transaction) => {
-        const paciente = await pacienteServico.buscarOuCriarPorConsulta(normalizado, { transaction });
-        const consultaEm = dataConsulta.toDate();
+      return await sequelize.transaction(
+        { isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE }, 
+        async (transaction) => {
+          const paciente = await pacienteServico.buscarOuCriarPorConsulta(normalizado, { transaction });
+          const consultaEm = dataConsulta.toDate();
 
-        const conflitoMedico = await consultaRepositorio.buscarHorarioAtivoMedico(
-          normalizado.medico_id,
-          consultaEm,
-          STATUS_ATIVOS_CONSULTA,
-          { transaction }
-        );
-        if (conflitoMedico) {
-          throw new ErroAplicacao('Medico ja possui consulta ativa neste horario', 409);
-        }
+          // 1. Validação de conflito de médico[cite: 1]
+          const conflitoMedico = await consultaRepositorio.buscarHorarioAtivoMedico(
+            normalizado.medico_id,
+            consultaEm,
+            STATUS_ATIVOS_CONSULTA,
+            { transaction }
+          );
+          if (conflitoMedico) {
+            throw new ErroAplicacao('Medico ja possui consulta ativa neste horario', 409);
+          }
 
-        const conflitoCpf = await consultaRepositorio.buscarCpfAtivoNoDia(
-          normalizado.paciente_cpf,
-          inicioDoDia(consultaEm),
-          fimDoDia(consultaEm),
-          STATUS_ATIVOS_CONSULTA,
-          { transaction }
-        );
-        if (conflitoCpf) {
-          throw new ErroAplicacao('CPF ja possui consulta ativa neste dia', 409);
-        }
+          // 2. Validação de conflito de CPF no dia[cite: 1]
+          const conflitoCpf = await consultaRepositorio.buscarCpfAtivoNoDia(
+            normalizado.paciente_cpf,
+            inicioDoDia(consultaEm),
+            fimDoDia(consultaEm),
+            STATUS_ATIVOS_CONSULTA,
+            { transaction }
+          );
+          if (conflitoCpf) {
+            throw new ErroAplicacao('CPF ja possui consulta ativa neste dia', 409);
+          }
 
-        const codigo = await this.gerarCodigoUnico(transaction);
-        const consulta = await consultaRepositorio.criar(
-          {
+          const codigo = await this.gerarCodigoUnico(transaction);
+
+          // ---------------------------------------------------------------------
+          // >>> NOVO: INVOCAR O CÁLCULO DE RISCO AQUI <<<
+          // ---------------------------------------------------------------------
+          const prioridade = normalizado.prioridade || PRIORIDADE_CONSULTA.NORMAL;
+          const { score_risco, nivel_risco } = await calcularRiscoNoShow({
             paciente_id: paciente.id,
-            medico_id: normalizado.medico_id,
             consulta_em: consultaEm,
-            codigo,
-            status: STATUS_CONSULTA.AGUARDANDO,
-            prioridade: normalizado.prioridade || PRIORIDADE_CONSULTA.NORMAL,
-            observacoes: normalizado.observacoes || null
-          },
-          { transaction }
-        );
+            prioridade,
+            transaction // Passa a transação atual para o utilitário ler o histórico de forma consistente
+          });
 
-        return consultaRepositorio.buscarPorId(consulta.id, { transaction });
-      });
+          // 3. Persistência da consulta com os novos campos
+          const consulta = await consultaRepositorio.criar(
+            {
+              paciente_id: paciente.id,
+              medico_id: normalizado.medico_id,
+              consulta_em: consultaEm,
+              codigo,
+              status: STATUS_CONSULTA.AGUARDANDO,
+              prioridade,
+              observacoes: normalizado.observacoes || null,
+              score_risco, // Insere o score calculado (0 a 100)
+              nivel_risco  // Insere o nível ('baixo', 'medio', 'alto')
+            },
+            { transaction }
+          );
+
+          return consultaRepositorio.buscarPorId(consulta.id, { transaction });
+        }
+      );
     } catch (erro) {
       if (erro instanceof ErroAplicacao) throw erro;
-      if (erro.name === 'SequelizeUniqueConstraintError') {
+      if (erro.name === 'SequelizeUniqueConstraintError' || erro.parent?.code === '40001') {
         throw new ErroAplicacao('Conflito de agendamento ou codigo duplicado', 409);
       }
       throw erro;
@@ -189,6 +210,8 @@ class ConsultaServico {
       consulta_em: formatarDataManaus(consulta.consulta_em),
       status: consulta.status,
       prioridade: consulta.prioridade,
+      score_risco: consulta.score_risco,
+      nivel_risco: consulta.nivel_risco,
       paciente: consulta.paciente
         ? {
             nome: consulta.paciente.nome,

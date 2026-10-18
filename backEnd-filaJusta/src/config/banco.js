@@ -1,6 +1,19 @@
 const ambiente = require('./ambiente');
 
+const dialectOptions = {
+  application_name: 'FilaJusta'
+};
+
+if (ambiente.banco.ssl) {
+  dialectOptions.ssl = {
+    require: true,
+    rejectUnauthorized: ambiente.banco.rejeitarSslNaoAutorizado
+  };
+}
+
 const configuracaoCompartilhada = {
+  use_env_variable: ambiente.banco.url ? 'DATABASE_URL' : undefined,
+  url: ambiente.banco.url,
   username: ambiente.banco.usuario,
   password: ambiente.banco.senha,
   database: ambiente.banco.nome,
@@ -9,9 +22,7 @@ const configuracaoCompartilhada = {
   dialect: ambiente.banco.dialeto,
   timezone: '-04:00',
   logging: ambiente.banco.logar ? console.log : false,
-  dialectOptions: {
-    application_name: 'FilaJusta'
-  },
+  dialectOptions,
   hooks: {
     afterConnect: async (conexao) => {
       if (conexao.query) {

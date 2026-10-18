@@ -160,7 +160,10 @@ const pacientesBase = [
   ['Lucas Martins Carvalho', '1998-05-21'],
   ['Juliana Ribeiro Ferreira', '1992-09-11'],
   ['Marcos Vinicius Duarte', '1985-04-02'],
-  ['Camila Azevedo Rocha', '1996-08-29']
+  ['Camila Azevedo Rocha', '1996-08-29'],
+  ['Antônio Carlos Silva', '1952-05-14'],
+  ['Beatriz Souza Mendes', '1999-01-20'],
+  ['Gabriel Monteiro Lima', '2003-08-11']
 ];
 
 const pacientes = pacientesBase.map(([nome, dataNascimento], indice) => ({
@@ -172,58 +175,167 @@ const pacientes = pacientesBase.map(([nome, dataNascimento], indice) => ({
   data_nascimento: dataNascimento
 }));
 
-const padraoConsultas = [
-  { dia: 0, horario: '07:00', paciente: 0, medico: 0, status: 'atendido', prioridade: 'normal' },
-  { dia: 0, horario: '07:30', paciente: 1, medico: 1, status: 'falta', prioridade: 'idoso' },
-  { dia: 0, horario: '08:00', paciente: 2, medico: 2, status: 'cancelado', prioridade: 'pcd' },
-  { dia: 1, horario: '07:00', paciente: 3, medico: 3, status: 'atendido', prioridade: 'gestante' },
-  { dia: 1, horario: '07:30', paciente: 4, medico: 4, status: 'falta', prioridade: 'normal' },
-  { dia: 1, horario: '08:00', paciente: 5, medico: 5, status: 'cancelado', prioridade: 'idoso' },
-  { dia: 2, horario: '07:00', paciente: 6, medico: 6, status: 'aguardando', prioridade: 'pcd' },
-  { dia: 2, horario: '07:30', paciente: 7, medico: 7, status: 'confirmado', prioridade: 'gestante' },
-  { dia: 2, horario: '08:00', paciente: 8, medico: 8, status: 'aguardando', prioridade: 'normal' },
-  { dia: 2, horario: '08:30', paciente: 9, medico: 9, status: 'confirmado', prioridade: 'idoso' },
-  { dia: 3, horario: '09:00', paciente: 10, medico: 10, status: 'aguardando', prioridade: 'pcd' },
-  { dia: 3, horario: '09:30', paciente: 11, medico: 11, status: 'confirmado', prioridade: 'gestante' },
-  { dia: 3, horario: '10:00', paciente: 0, medico: 12, status: 'cancelado', prioridade: 'normal' },
-  { dia: 3, horario: '10:30', paciente: 1, medico: 13, status: 'aguardando', prioridade: 'idoso' },
-  { dia: 4, horario: '11:00', paciente: 2, medico: 14, status: 'confirmado', prioridade: 'pcd' },
-  { dia: 4, horario: '11:30', paciente: 3, medico: 15, status: 'aguardando', prioridade: 'gestante' },
-  { dia: 4, horario: '13:00', paciente: 4, medico: 16, status: 'confirmado', prioridade: 'normal' },
-  { dia: 4, horario: '13:30', paciente: 5, medico: 17, status: 'aguardando', prioridade: 'idoso' },
-  { dia: 5, horario: '16:30', paciente: 6, medico: 18, status: 'confirmado', prioridade: 'pcd' },
-  { dia: 5, horario: '17:00', paciente: 7, medico: 19, status: 'aguardando', prioridade: 'gestante' }
+// Horários de atendimento disponíveis no expediente
+const horariosAtendimento = [
+  '07:00', '07:30', '08:00', '08:30', '09:00', '09:30',
+  '10:00', '10:30', '11:00', '11:30', '13:00', '13:30',
+  '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00'
 ];
 
-const codigosConsultas = padraoConsultas.map((_, indice) => `VPL-A${String(indice + 1).padStart(3, '0')}`);
+/**
+ * Função simuladora do SmartPredict para calcular o score e nível de risco durante o seed.
+ */
+const calcularRiscoSeed = (historicoConsultas, pacienteId, dataConsultaEm, prioridade) => {
+  let score = 0;
 
-const montarConsultas = () => {
-  const diasAgenda = [...diasUteisAnteriores(2), ...proximosDiasUteis(4)];
+  // 1. Histórico prévio do paciente no seed
+  const historicoPaciente = historicoConsultas.filter(c => c.paciente_id === pacienteId);
+  const totalConsultas = historicoPaciente.length;
+  const faltasAnteriores = historicoPaciente.filter(c => c.status === 'falta').length;
 
-  return padraoConsultas.map((item, indice) => ({
-    id: uuid(401 + indice),
-    paciente_id: pacientes[item.paciente].id,
-    medico_id: medicos[item.medico].id,
-    codigo: codigosConsultas[indice],
-    consulta_em: emManaus(diasAgenda[item.dia], item.horario),
-    status: item.status,
-    prioridade: item.prioridade,
-    observacoes: `Consulta seed para testes de ${item.status} com prioridade ${item.prioridade}.`
-  }));
+  let scoreHistorico = 0;
+  if (totalConsultas > 0 && faltasAnteriores > 0) {
+    const taxaFaltas = faltasAnteriores / totalConsultas;
+    scoreHistorico = taxaFaltas * 50;
+  }
+
+  // 2. Antecedência
+  const dataConsulta = new Date(dataConsultaEm);
+  const hoje = new Date();
+  const diasAntecedencia = Math.ceil((dataConsulta - hoje) / (1000 * 60 * 60 * 24));
+
+  // 3. Regra de Antecedência > 3 dias + Prioridade
+  if (diasAntecedencia > 3 && faltasAnteriores > 0) {
+    const prio = (prioridade || '').toLowerCase();
+    if (prio === 'idoso') {
+      scoreHistorico *= 1.5;
+    } else if (prio === 'pcd' || prio === 'gestante') {
+      scoreHistorico *= 1.3;
+    }
+  }
+
+  score += scoreHistorico;
+
+  if (diasAntecedencia >= 5) {
+    score += 25;
+  } else if (diasAntecedencia >= 3) {
+    score += 15;
+  }
+
+  const diaSemana = dataConsulta.getDay();
+  if (diaSemana === 1 || diaSemana === 5) {
+    score += 15;
+  }
+
+  if (prioridade && prioridade !== 'normal' && diasAntecedencia <= 3) {
+    score -= 10;
+  }
+
+  const scoreFinal = Math.min(Math.max(Math.round(score), 0), 100);
+
+  let nivelRisco = 'baixo';
+  if (scoreFinal >= 70) {
+    nivelRisco = 'alto';
+  } else if (scoreFinal >= 40) {
+    nivelRisco = 'medio';
+  }
+
+  return { score_risco: scoreFinal, nivel_risco: nivelRisco };
 };
 
-const legado = {
-  emailsUsuarios: ['admin@filajusta.local', 'recepcao@filajusta.local'],
-  crmsMedicos: ['CRM-AM 12345', 'CRM-AM 67890'],
-  cpfsPacientes: ['11144477735', '22255588846', '33366699957', '44477700068'],
-  codigosConsultas: ['VPL-IDOS', 'VPL-PCD0', 'VPL-GEST', 'VPL-FALT']
+/**
+ * Gera mais de 100 consultas distribuídas entre os dias úteis passados e futuros.
+ */
+const gerarColecao100Consultas = () => {
+  const diasPassados = diasUteisAnteriores(10); // 10 dias úteis de histórico
+  const diasFuturos = proximosDiasUteis(5);     // 5 dias úteis de agendamentos futuros
+  const todasConsultas = [];
+  let contadorCodigo = 1;
+
+  // Status possíveis para o histórico (passado)
+  const statusPassados = ['atendido', 'atendido', 'atendido', 'falta', 'cancelado'];
+  const prioridades = ['normal', 'idoso', 'pcd', 'gestante'];
+
+  // 1. POVOAMENTO HISTÓRICO (Dias Passados: Gera volume para BI e histórico de faltas)
+  diasPassados.forEach((dia, idxDia) => {
+    // 7 consultas por dia passado (total: 70 consultas históricas)
+    for (let i = 0; i < 7; i++) {
+      const pacienteIndex = (idxDia + i) % pacientes.length;
+      const medicoIndex = (idxDia * 2 + i) % medicos.length;
+      const horario = horariosAtendimento[i * 2];
+      const status = statusPassados[(idxDia + i) % statusPassados.length];
+      const prioridade = prioridades[(idxDia + i) % prioridades.length];
+
+      const consultaEm = emManaus(dia, horario);
+      const pacienteId = pacientes[pacienteIndex].id;
+
+      // Calcula risco sintético
+      const { score_risco, nivel_risco } = calcularRiscoSeed(todasConsultas, pacienteId, consultaEm, prioridade);
+
+      todasConsultas.push({
+        id: uuid(400 + contadorCodigo),
+        paciente_id: pacienteId,
+        medico_id: medicos[medicoIndex].id,
+        codigo: `VPL-A${String(contadorCodigo).padStart(3, '0')}`,
+        consulta_em: consultaEm,
+        status,
+        prioridade,
+        score_risco,
+        nivel_risco,
+        observacoes: `Consulta historica seed (${status}) para testes de analytics.`
+      });
+
+      contadorCodigo++;
+    }
+  });
+
+  // 2. POVOAMENTO FUTURO (Dias Futuros: Agendamentos ativos, incluindo cenários SmartPredict e BI)
+  const statusFuturos = ['aguardando', 'confirmado'];
+
+  diasFuturos.forEach((dia, idxDia) => {
+    // 7 consultas por dia futuro (total: 35 consultas futuras)
+    for (let i = 0; i < 7; i++) {
+      const pacienteIndex = (idxDia + i) % pacientes.length;
+      const medicoIndex = (idxDia * 3 + i) % medicos.length;
+      const horario = horariosAtendimento[i * 2 + 1];
+      const status = statusFuturos[(idxDia + i) % statusFuturos.length];
+      const prioridade = prioridades[(idxDia + i) % prioridades.length];
+
+      const consultaEm = emManaus(dia, horario);
+      const pacienteId = pacientes[pacienteIndex].id;
+
+      // Calcula risco preditivo com base no histórico construído
+      const { score_risco, nivel_risco } = calcularRiscoSeed(todasConsultas, pacienteId, consultaEm, prioridade);
+
+      todasConsultas.push({
+        id: uuid(400 + contadorCodigo),
+        paciente_id: pacienteId,
+        medico_id: medicos[medicoIndex].id,
+        codigo: `VPL-A${String(contadorCodigo).padStart(3, '0')}`,
+        consulta_em: consultaEm,
+        status,
+        prioridade,
+        score_risco,
+        nivel_risco,
+        observacoes: `Consulta futura agendada (${status}) com risco preditivo ${nivel_risco}.`
+      });
+
+      contadorCodigo++;
+    }
+  });
+
+  return todasConsultas;
 };
+
+const codigosConsultasLegado = ['VPL-IDOS', 'VPL-PCD0', 'VPL-GEST', 'VPL-FALT'];
 
 module.exports = {
   async up(queryInterface) {
     const agora = new Date();
     const senhaHash = await bcrypt.hash('123456', 12);
-    const consultas = montarConsultas();
+
+    // Gera as 105 consultas com dados analíticos e preditivos completos
+    const consultas = gerarColecao100Consultas();
 
     await queryInterface.bulkInsert('usuarios', [
       {
@@ -286,20 +398,18 @@ module.exports = {
   },
 
   async down(queryInterface) {
-    await queryInterface.bulkDelete('consultas', {
-      codigo: { [Op.in]: [...codigosConsultas, ...legado.codigosConsultas] }
-    });
+    await queryInterface.bulkDelete('consultas', null, {});
     await queryInterface.bulkDelete('pacientes', {
-      cpf: { [Op.in]: [...pacientes.map((paciente) => paciente.cpf), ...legado.cpfsPacientes] }
+      cpf: { [Op.in]: pacientes.map((paciente) => paciente.cpf) }
     });
     await queryInterface.bulkDelete('medicos', {
-      crm: { [Op.in]: [...medicos.map((medico) => medico.crm), ...legado.crmsMedicos] }
+      crm: { [Op.in]: medicos.map((medico) => medico.crm) }
     });
     await queryInterface.bulkDelete('especialidades', {
       nome: { [Op.in]: especialidades.map((especialidade) => especialidade.nome) }
     });
     await queryInterface.bulkDelete('usuarios', {
-      email: { [Op.in]: ['admin@filajusta.com', 'recepcao@filajusta.com', ...legado.emailsUsuarios] }
+      email: { [Op.in]: ['admin@filajusta.com', 'recepcao@filajusta.com'] }
     });
   }
 };

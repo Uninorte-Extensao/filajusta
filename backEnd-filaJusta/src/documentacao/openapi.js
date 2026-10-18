@@ -132,7 +132,68 @@ module.exports = {
       get: { tags: ['Publico'], summary: 'Lista especialidades ativas', description: semAutenticacao, security: [], responses: { 200: respostaPadrao() } }
     },
     '/api/medicos': {
-      get: { tags: ['Publico'], summary: 'Lista medicos ativos', description: semAutenticacao, security: [], responses: { 200: respostaPadrao() } }
+      get: {
+        tags: ['Publico'],
+        summary: 'Lista medicos ativos',
+        description: `${semAutenticacao} Permite filtrar por especialidade_id ou pelo nome exato da especialidade. Se ambos forem enviados, especialidade_id tem prioridade.`,
+        security: [],
+        parameters: [
+          {
+            name: 'especialidade_id',
+            in: 'query',
+            required: false,
+            schema: { type: 'string', format: 'uuid' },
+            example: '33333333-3333-4333-8333-333333333333'
+          },
+          {
+            name: 'especialidade',
+            in: 'query',
+            required: false,
+            schema: { type: 'string' },
+            example: 'Cardiologia'
+          }
+        ],
+        responses: {
+          200: {
+            description: 'Medicos encontrados',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/RespostaSucesso' },
+                examples: {
+                  filtrados: {
+                    summary: 'Medicos filtrados por especialidade',
+                    value: {
+                      sucesso: true,
+                      mensagem: 'Medicos encontrados',
+                      dados: [
+                        {
+                          id: '66666666-6666-4666-8666-666666666666',
+                          nome: 'Dra. Ana Teste',
+                          crm: 'CRM-AM 54321',
+                          especialidade: {
+                            id: '33333333-3333-4333-8333-333333333333',
+                            nome: 'Cardiologia'
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  vazio: {
+                    summary: 'Especialidade ativa sem medicos ativos',
+                    value: {
+                      sucesso: true,
+                      mensagem: 'Nenhum médico encontrado para esta especialidade',
+                      dados: []
+                    }
+                  }
+                }
+              }
+            }
+          },
+          400: erroPadrao('Erro de validacao'),
+          404: erroPadrao('Especialidade não encontrada')
+        }
+      }
     },
     '/api/horarios': {
       get: {

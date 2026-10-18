@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Backend profissional para o sistema de agendamento medico FilaJusta.",
   "main": "src/servidor.js",
+  "engines": {
+    "node": ">=22 <25",
+    "npm": ">=10"
+  },
   "scripts": {
     "dev": "nodemon src/servidor.js",
     "start": "node src/servidor.js",
@@ -22,6 +26,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@supabase/server": "^1.4.1",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dayjs": "^1.11.13",
@@ -32,7 +37,6 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
-    "nodemailer": "^9.0.5",
     "pg": "^8.13.1",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.5",

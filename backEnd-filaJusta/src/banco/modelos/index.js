@@ -3,12 +3,14 @@ const path = require('path');
 const { Sequelize, DataTypes } = require('sequelize');
 const configuracaoBanco = require('../../config/banco')[process.env.NODE_ENV || 'development'];
 
-const sequelize = new Sequelize(
-  configuracaoBanco.database,
-  configuracaoBanco.username,
-  configuracaoBanco.password,
-  configuracaoBanco
-);
+const sequelize = configuracaoBanco.url
+  ? new Sequelize(configuracaoBanco.url, configuracaoBanco)
+  : new Sequelize(
+      configuracaoBanco.database,
+      configuracaoBanco.username,
+      configuracaoBanco.password,
+      configuracaoBanco
+    );
 
 const banco = {};
 

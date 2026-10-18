@@ -3,8 +3,18 @@ const { Medico, Especialidade } = require('../../banco/modelos');
 const incluirEspecialidade = [{ model: Especialidade, as: 'especialidade', attributes: ['id', 'nome'] }];
 
 class MedicoRepositorio {
-  listar() {
-    return Medico.findAll({ include: incluirEspecialidade, order: [['nome', 'ASC']] });
+  listar(filtros = {}) {
+    const where = {};
+
+    if (typeof filtros.ativo === 'boolean') {
+      where.ativo = filtros.ativo;
+    }
+
+    if (filtros.especialidade_id) {
+      where.especialidade_id = filtros.especialidade_id;
+    }
+
+    return Medico.findAll({ where, include: incluirEspecialidade, order: [['nome', 'ASC']] });
   }
 
   buscarPorId(id, opcoes = {}) {
