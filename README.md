@@ -65,6 +65,8 @@ Entre as principais funcionalidades estão:
 
 ## 🏗️ Arquitetura
 
+📘 **Documentação detalhada:** [Arquitetura do FilaJusta](docs/ARQUITETURA.md)
+
 O projeto está dividido em duas aplicações:
 
 ```text
