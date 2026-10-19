@@ -35,7 +35,7 @@ Thumbs.db
 .idea/
 
 # Backend uploads locais
-backEnd-filaJusta/storage/
+backend/storage/
 
 # Cache
 .cache/
