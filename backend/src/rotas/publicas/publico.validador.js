@@ -4,6 +4,18 @@ const { criarConsulta } = require('../../modulos/consultas/consulta.validador');
 
 const codigoConsulta = z.string().regex(/^VPL-[A-Z0-9]{4}$/, 'Codigo da consulta invalido');
 
+const medicosPublicos = z.object({
+  corpo: objetoVazio,
+  parametros: objetoVazio,
+  consulta: z.object({
+    especialidade_id: z.string().uuid('Especialidade invalida').optional(),
+    especialidade: z.string().trim().optional()
+  }).refine(
+    (dados) => dados.especialidade_id || dados.especialidade === undefined || dados.especialidade.length > 0,
+    { message: 'Especialidade invalida', path: ['especialidade'] }
+  )
+});
+
 const horariosPublicos = z.object({
   corpo: objetoVazio,
   parametros: objetoVazio,
@@ -51,6 +63,7 @@ const uploadDocumentoPublico = z.object({
 
 module.exports = {
   criarConsultaPublica: criarConsulta,
+  medicosPublicos,
   horariosPublicos,
   consultaPorCodigo,
   alterarConsultaPublica,

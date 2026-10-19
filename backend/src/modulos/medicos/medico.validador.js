@@ -9,7 +9,7 @@ const criarMedico = z.object({
     especialidadeId: idUuid.optional(),
     nome: z.string().min(2).max(140),
     crm: z.string().min(3).max(40),
-    telefone: telefone.optional().nullable(),
+    telefone,
     email: z.string().email().optional().nullable(),
     ativo: z.boolean().optional()
   }).refine((dados) => dados.especialidade_id || dados.especialidadeId, 'Especialidade obrigatoria'),

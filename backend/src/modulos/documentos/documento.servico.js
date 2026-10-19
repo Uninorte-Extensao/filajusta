@@ -59,6 +59,8 @@ class DocumentoServico {
   }
 
   serializar(documento) {
+    const prefixoInterno = '/api/recepcao';
+
     return {
       id: documento.id,
       consulta_id: documento.consulta_id,
@@ -68,14 +70,14 @@ class DocumentoServico {
         nome_original: documento.arquivo_frente_nome_original,
         mime: documento.arquivo_frente_mime,
         tamanho: documento.arquivo_frente_tamanho,
-        url_privada: `/api/documentos/${documento.id}/download?lado=frente`
+        url_privada: `${prefixoInterno}/documentos/${documento.id}/download?lado=frente`
       },
       verso: documento.arquivo_verso_caminho
         ? {
             nome_original: documento.arquivo_verso_nome_original,
             mime: documento.arquivo_verso_mime,
             tamanho: documento.arquivo_verso_tamanho,
-            url_privada: `/api/documentos/${documento.id}/download?lado=verso`
+            url_privada: `${prefixoInterno}/documentos/${documento.id}/download?lado=verso`
           }
         : null,
       criado_em: documento.criado_em,

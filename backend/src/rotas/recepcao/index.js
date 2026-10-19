@@ -5,6 +5,7 @@ const pacienteRotas = require('../../modulos/pacientes/paciente.rotas');
 const consultaRotas = require('../../modulos/consultas/consulta.rotas');
 const agendaRotas = require('../../modulos/agenda/agenda.rotas');
 const documentoRotas = require('../../modulos/documentos/documento.rotas');
+const analyticsRotas = require('../../modulos/analytics/analytics.rotas');
 
 const rotas = Router();
 
@@ -13,5 +14,6 @@ rotas.use('/pacientes', pacienteRotas);
 rotas.use('/consultas', consultaRotas);
 rotas.use('/agenda', agendaRotas);
 rotas.use('/', documentoRotas);
+rotas.use('/analytics', analyticsRotas);
 
 module.exports = rotas;

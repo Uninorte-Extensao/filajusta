@@ -38,6 +38,12 @@ const streamMorgan = {
   write: (mensagem) => logger.info(mensagem.trim())
 };
 
-const loggerHttp = morgan('combined', { stream: streamMorgan });
+morgan.token('url-segura', (req) => {
+  const base = req.originalUrl || req.url || '';
+  return base.replace(/([?&](?:cpf|token|senha|password)=)[^&]*/gi, '$1[REDACTED]');
+});
+
+const formatoHttp = ':remote-addr - :remote-user [:date[clf]] ":method :url-segura HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"';
+const loggerHttp = morgan(formatoHttp, { stream: streamMorgan });
 
 module.exports = { logger, loggerHttp };

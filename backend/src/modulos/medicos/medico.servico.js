@@ -7,21 +7,11 @@ class MedicoServico {
     return medicoRepositorio.listar();
   }
 
-  async listarPublico() {
-    const medicos = await medicoRepositorio.listar();
-    return medicos
-      .filter((medico) => medico.ativo)
-      .map((medico) => ({
-        id: medico.id,
-        nome: medico.nome,
-        crm: medico.crm,
-        especialidade: medico.especialidade
-          ? {
-              id: medico.especialidade.id,
-              nome: medico.especialidade.nome
-            }
-          : null
-      }));
+  async listarPublico(filtros = {}) {
+    const filtrosNormalizados = await this.normalizarFiltrosPublicos(filtros);
+    const medicos = await medicoRepositorio.listar({ ativo: true, ...filtrosNormalizados });
+
+    return medicos.map((medico) => this.serializarPublico(medico));
   }
 
   async buscar(id) {
@@ -73,6 +63,36 @@ class MedicoServico {
     if (!especialidade || !especialidade.ativo) {
       throw new ErroAplicacao('Especialidade nao encontrada ou inativa', 404);
     }
+  }
+
+  async normalizarFiltrosPublicos(filtros) {
+    if (filtros.especialidade_id) {
+      const especialidade = await especialidadeRepositorio.buscarPorId(filtros.especialidade_id);
+      if (!especialidade || !especialidade.ativo) throw new ErroAplicacao('Especialidade não encontrada', 404);
+      return { especialidade_id: especialidade.id };
+    }
+
+    if (filtros.especialidade) {
+      const especialidade = await especialidadeRepositorio.buscarPorNome(filtros.especialidade);
+      if (!especialidade || !especialidade.ativo) throw new ErroAplicacao('Especialidade não encontrada', 404);
+      return { especialidade_id: especialidade.id };
+    }
+
+    return {};
+  }
+
+  serializarPublico(medico) {
+    return {
+      id: medico.id,
+      nome: medico.nome,
+      crm: medico.crm,
+      especialidade: medico.especialidade
+        ? {
+            id: medico.especialidade.id,
+            nome: medico.especialidade.nome
+          }
+        : null
+    };
   }
 
   normalizarMedico(dados) {

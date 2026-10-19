@@ -7,29 +7,24 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true
       },
-
       nome: {
         type: DataTypes.STRING(120),
         allowNull: false
       },
-
       email: {
         type: DataTypes.STRING(160),
         allowNull: false,
         unique: true
       },
-
       senha_hash: {
         type: DataTypes.STRING,
         allowNull: false
       },
-
       perfil: {
         type: DataTypes.ENUM('admin', 'recepcao'),
         allowNull: false,
         defaultValue: 'recepcao'
       },
-
       ativo: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
@@ -46,4 +41,4 @@ module.exports = (sequelize, DataTypes) => {
   Usuario.associate = () => {};
 
   return Usuario;
-}
+};
