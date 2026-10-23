@@ -27,6 +27,7 @@ import {
   Moon,
   Loader2,
   UserCog,
+  TrendingUp,
 } from "lucide-react"
 import { format, addDays, subDays } from "date-fns"
 import { ptBR } from "date-fns/locale"
@@ -546,6 +547,53 @@ export default function RecepcaoPage() {
                     </p>
                   </div>
                 </div>
+
+                {selectedAppointment.score_risco != null && selectedAppointment.nivel_risco && (
+                  <div className="bg-card border border-border rounded-xl p-4 space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">SmartPredict risk assessment</p>
+                        <p className="text-xs text-muted-foreground">Estimated chance of missing this appointment</p>
+                      </div>
+                      <TrendingUp className="h-4 w-4 text-primary shrink-0" />
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-2xl font-bold text-foreground">{selectedAppointment.score_risco}%</span>
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
+                        selectedAppointment.nivel_risco === "alto"
+                          ? "bg-destructive/15 text-destructive"
+                          : selectedAppointment.nivel_risco === "medio"
+                          ? "bg-amber-500/15 text-amber-700 dark:text-amber-300"
+                          : "bg-primary/15 text-primary"
+                      }`}>
+                        {selectedAppointment.nivel_risco === "alto"
+                          ? "High risk"
+                          : selectedAppointment.nivel_risco === "medio"
+                          ? "Medium risk"
+                          : "Low risk"}
+                      </span>
+                    </div>
+                    <div
+                      className="h-2 w-full overflow-hidden rounded-full bg-muted"
+                      role="progressbar"
+                      aria-label="Estimated no-show risk"
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={selectedAppointment.score_risco}
+                    >
+                      <div
+                        className={`h-full rounded-full transition-all ${
+                          selectedAppointment.nivel_risco === "alto"
+                            ? "bg-destructive"
+                            : selectedAppointment.nivel_risco === "medio"
+                            ? "bg-amber-500"
+                            : "bg-primary"
+                        }`}
+                        style={{ width: `${Math.min(100, Math.max(0, selectedAppointment.score_risco))}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
 
                 {/* Actions */}
                 {!["cancelado", "atendido", "falta"].includes(selectedAppointment.status) && (
