@@ -52,6 +52,8 @@ export type Agendamento = {
     | "cancelado"
     | "falta"
   prioridade: "normal" | "idoso" | "pcd" | "gestante"
+  score_risco?: number | null
+  nivel_risco?: "baixo" | "medio" | "alto" | null
   descricao_prioridade?: string | null
   documento_url?: string | null
   observacoes: string | null
@@ -204,6 +206,18 @@ function mapConsulta(c: any): Agendamento {
     prioridade:
       c.prioridade ||
       "normal",
+
+    score_risco:
+      typeof c.score_risco === "number"
+        ? c.score_risco
+        : null,
+
+    nivel_risco:
+      c.nivel_risco === "baixo" ||
+      c.nivel_risco === "medio" ||
+      c.nivel_risco === "alto"
+        ? c.nivel_risco
+        : null,
 
     descricao_prioridade:
       c.descricao_prioridade ||
