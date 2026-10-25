@@ -9,4 +9,6 @@ COPY . .
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+# RUN_MIGRATIONS=true aplica as migrations antes de iniciar (necessario no primeiro deploy
+# e sempre que houver migration nova).
+CMD ["sh", "-c", "if [ \"$RUN_MIGRATIONS\" = \"true\" ]; then npm run db:migrate; fi && npm start"]

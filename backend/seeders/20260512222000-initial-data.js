@@ -332,7 +332,8 @@ const codigosConsultasLegado = ['VPL-IDOS', 'VPL-PCD0', 'VPL-GEST', 'VPL-FALT'];
 module.exports = {
   async up(queryInterface) {
     const agora = new Date();
-    const senhaHash = await bcrypt.hash('123456', 12);
+    // Senha dos usuarios de demonstracao. Em ambiente publicado, defina SEED_SENHA_PADRAO.
+    const senhaHash = await bcrypt.hash(process.env.SEED_SENHA_PADRAO || '123456', 12);
 
     // Gera as 105 consultas com dados analíticos e preditivos completos
     const consultas = gerarColecao100Consultas();

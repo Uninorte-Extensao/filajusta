@@ -59,14 +59,26 @@ Em outro terminal:
 ```bash
 cd frontend
 npm install
-echo "NEXT_PUBLIC_API_URL=http://localhost:3000" > .env
+cp .env.example .env   # define NEXT_PUBLIC_API_URL (URL da API)
 npm run dev            # http://localhost:3001
 ```
+
+Usuários de demonstração criados pelo seed: `admin@filajusta.com` e `recepcao@filajusta.com` (senha `123456`, ou o valor de `SEED_SENHA_PADRAO`). O seed também cria a fila de hoje com 8 pacientes.
+
+## Aplicação publicada
+
+| Serviço  | URL                                |
+|----------|------------------------------------|
+| Frontend | A preencher após o deploy          |
+| API      | A preencher após o deploy (`/saude`) |
+
+Passo a passo de publicação (banco, backend, frontend e e-mail): [docs/DEPLOY.md](docs/DEPLOY.md).
 
 
 ## Documentação
 
 - API, scripts e detalhes do backend: [backend/README.md](backend/README.md)
+- Publicação (deploy): [docs/DEPLOY.md](docs/DEPLOY.md)
 - Coleção do Postman: [docs/FilaJusta.postman_collection.json](docs/FilaJusta.postman_collection.json)
 
 ## Equipe

@@ -286,6 +286,34 @@ module.exports = {
         responses: { 200: respostaPadrao('Login realizado'), 401: erroPadrao('Credenciais invalidas'), 429: erroPadrao('Muitas tentativas') }
       }
     },
+    '/api/autenticacao/recuperacao/solicitar': {
+      post: {
+        tags: ['Autenticacao Interna'],
+        summary: 'Solicita codigo de recuperacao de senha por e-mail',
+        description: 'Resposta neutra: nao informa se o e-mail existe. O codigo tem 6 digitos e expira em poucos minutos.',
+        security: [],
+        requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['email'], properties: { email: { type: 'string', format: 'email' } } } } } },
+        responses: { 200: respostaPadrao('Solicitacao registrada'), 429: erroPadrao('Muitas tentativas'), 503: erroPadrao('E-mail indisponivel') }
+      }
+    },
+    '/api/autenticacao/recuperacao/validar': {
+      post: {
+        tags: ['Autenticacao Interna'],
+        summary: 'Valida o codigo de recuperacao de senha',
+        security: [],
+        requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['email', 'codigo'], properties: { email: { type: 'string', format: 'email' }, codigo: { type: 'string', example: '123456' } } } } } },
+        responses: { 200: respostaPadrao('Codigo valido'), 400: erroPadrao('Codigo invalido ou expirado'), 429: erroPadrao('Muitas tentativas') }
+      }
+    },
+    '/api/autenticacao/recuperacao/redefinir': {
+      post: {
+        tags: ['Autenticacao Interna'],
+        summary: 'Redefine a senha com o codigo recebido por e-mail',
+        security: [],
+        requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['email', 'codigo', 'novaSenha'], properties: { email: { type: 'string', format: 'email' }, codigo: { type: 'string', example: '123456' }, novaSenha: { type: 'string', minLength: 6 } } } } } },
+        responses: { 200: respostaPadrao('Senha redefinida'), 400: erroPadrao('Codigo invalido ou expirado'), 429: erroPadrao('Muitas tentativas') }
+      }
+    },
     '/api/autenticacao/me': {
       get: { tags: ['Autenticacao Interna'], summary: 'Usuario interno autenticado', description: comJwt, security: segurancaJwt, responses: { 200: respostaPadrao(), 401: erroPadrao('Token invalido') } }
     },

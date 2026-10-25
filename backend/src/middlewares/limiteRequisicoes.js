@@ -10,4 +10,12 @@ const limitarLogin = rateLimit({
   handler: (_req, res) => erro(res, 'Muitas tentativas de login. Tente novamente mais tarde.', 429)
 });
 
-module.exports = { limitarLogin };
+const limitarRecuperacao = rateLimit({
+  windowMs: ambiente.limiteRequisicoes.janelaLoginMinutos * 60 * 1000,
+  limit: ambiente.limiteRequisicoes.maximoRecuperacao,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (_req, res) => erro(res, 'Muitas tentativas de recuperacao de senha. Tente novamente mais tarde.', 429)
+});
+
+module.exports = { limitarLogin, limitarRecuperacao };

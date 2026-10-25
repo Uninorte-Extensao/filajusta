@@ -29,6 +29,19 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: true
+      },
+      recuperacao_codigo_hash: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      recuperacao_expira_em: {
+        type: DataTypes.DATE,
+        allowNull: true
+      },
+      recuperacao_tentativas: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0
       }
     },
     {
