@@ -94,7 +94,20 @@ module.exports = {
   },
   limiteRequisicoes: {
     janelaLoginMinutos: paraNumero(process.env.LOGIN_RATE_LIMIT_WINDOW_MINUTES, 15),
-    maximoLogin: paraNumero(process.env.LOGIN_RATE_LIMIT_MAX, 10)
+    maximoLogin: paraNumero(process.env.LOGIN_RATE_LIMIT_MAX, 10),
+    maximoRecuperacao: paraNumero(process.env.RECOVERY_RATE_LIMIT_MAX, 20)
+  },
+  recuperacaoSenha: {
+    expiracaoMinutos: paraNumero(process.env.RECOVERY_CODE_EXPIRES_MINUTES, 10),
+    maximoTentativas: paraNumero(process.env.RECOVERY_MAX_ATTEMPTS, 5)
+  },
+  smtp: {
+    host: obter('SMTP_HOST'),
+    porta: paraNumero(process.env.SMTP_PORT, 587),
+    seguro: paraBooleano(process.env.SMTP_SECURE, paraNumero(process.env.SMTP_PORT, 587) === 465),
+    usuario: obter('SMTP_USER'),
+    senha: obter('SMTP_PASS'),
+    remetente: obter('SMTP_FROM', obter('SMTP_USER', 'FilaJusta <nao-responda@filajusta.local>'))
   },
   upload: {
     diretorio: process.env.UPLOAD_DIR || 'storage/documents',

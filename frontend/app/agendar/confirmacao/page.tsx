@@ -67,7 +67,7 @@ export default function ConfirmacaoPage() {
 
       console.log("[api] POST /api/consultas body:", JSON.stringify(body))
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/consultas`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ""}/api/consultas`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),

@@ -23,7 +23,8 @@ npm run dev            # http://localhost:3000
 | `npm run dev`          | Desenvolvimento                        |
 | `npm start`            | Produção                               |
 | `npm run db:migrate`   | Executa as migrations                  |
-| `npm run db:seed`      | Executa os seeders                     |
+| `npm run db:seed`      | Executa os seeders (inclui a fila de hoje) |
+| `npm run db:seed:demo` | Recria só a fila de demonstração para a data de hoje |
 | `npm run db:seed:undo` | Desfaz o último conjunto de seeds      |
 | `npm run db:undo`      | Desfaz a última migration              |
 | `npm run db:undo:all`  | Desfaz todas as migrations             |
@@ -39,6 +40,16 @@ Módulos principais:
 /api/consultas
 /api/admin
 ```
+
+Recuperação de senha (rotas públicas, com limite de requisições):
+
+```text
+POST /api/autenticacao/recuperacao/solicitar   { email }
+POST /api/autenticacao/recuperacao/validar     { email, codigo }
+POST /api/autenticacao/recuperacao/redefinir   { email, codigo, novaSenha }
+```
+
+O código de 6 dígitos é enviado por e-mail (SMTP), expira em 10 minutos e é bloqueado após 5 tentativas erradas. Configure `SMTP_*` no `.env`; em desenvolvimento, sem `SMTP_HOST`, o código aparece no log do servidor.
 
 Algumas rotas são públicas e outras exigem autenticação e permissão por perfil. O login é feito em `POST /api/autenticacao/login`, e as rotas protegidas recebem o token no header:
 
