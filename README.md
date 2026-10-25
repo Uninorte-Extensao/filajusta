@@ -69,8 +69,8 @@ Usuários de demonstração criados pelo seed: `admin@filajusta.com` e `recepcao
 
 | Serviço  | URL                                |
 |----------|------------------------------------|
-| Frontend | A preencher após o deploy          |
-| API      | A preencher após o deploy (`/saude`) |
+| Frontend | https://filajusta.vercel.app       |
+| API      | https://filajusta-api.onrender.com (saúde em `/saude`, documentação em `/documentacao`) |
 
 Passo a passo de publicação (banco, backend, frontend e e-mail): [docs/DEPLOY.md](docs/DEPLOY.md).
 
